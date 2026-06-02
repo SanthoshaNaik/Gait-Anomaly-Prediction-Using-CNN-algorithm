@@ -125,6 +125,8 @@ st.set_page_config(page_title="Gait Anomaly Detection", layout="wide")
 @st.cache_resource
 def load_trained_model():
     model = load_model("gait_anomaly_model21.h5")
+    # Warm up the model with a dummy input to build/initialize all internal layer outputs
+    model(np.zeros((1, 224, 224, 3)))
     return model
 
 model = load_trained_model()
