@@ -163,7 +163,7 @@ def predict_gait(input_data):
 # Grad-CAM
 def grad_cam(img, layer_name='conv2d_2'):
     grad_model = tf.keras.models.Model(
-        [model.inputs], [model.get_layer(layer_name).output, model.output]
+        model.inputs, [model.get_layer(layer_name).output, model.layers[-1].output]
     )
     with tf.GradientTape() as tape:
         conv_outputs, predictions = grad_model(np.expand_dims(img, axis=0))
