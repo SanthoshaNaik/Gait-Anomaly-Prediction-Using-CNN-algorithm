@@ -119,6 +119,8 @@ import tempfile
 import os
 import matplotlib.pyplot as plt
 
+st.set_page_config(page_title="Gait Anomaly Detection", layout="wide")
+
 # Load your trained model
 @st.cache_resource
 def load_trained_model():
@@ -181,7 +183,6 @@ def overlay_heatmap(img, heatmap):
     return cv2.addWeighted(np.uint8(255 * img), 0.6, heatmap, 0.4, 0)
 
 # Streamlit UI
-st.set_page_config(page_title="Gait Anomaly Detection", layout="wide")
 st.title("🚶‍♂️ Gait Anomaly Detection System")
 
 st.markdown("""
