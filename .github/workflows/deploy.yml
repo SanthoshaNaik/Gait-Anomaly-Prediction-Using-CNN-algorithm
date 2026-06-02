@@ -1,0 +1,23 @@
+name: Sync to Hugging Face Space
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # Replace 'SanthoshaNaik' and 'Gait-Anomaly-Prediction-Using-CNN-algorithm' below 
+          # if your Hugging Face username or Space name is different.
+          git push --force https://SanthoshaNaik:$HF_TOKEN@huggingface.co/spaces/SanthoshaNaik/Gait-Anomaly-Prediction-Using-CNN-algorithm main
