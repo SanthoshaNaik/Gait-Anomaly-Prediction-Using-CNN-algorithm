@@ -119,6 +119,19 @@ import tempfile
 import os
 import matplotlib.pyplot as plt
 
+# Keras 3 Thread-Safety Monkey Patch for Streamlit
+try:
+    from keras.src.backend.common import name_scope
+    original_exit = name_scope.name_scope.__exit__
+    def safe_exit(self, *args, **kwargs):
+        try:
+            return original_exit(self, *args, **kwargs)
+        except Exception:
+            pass
+    name_scope.name_scope.__exit__ = safe_exit
+except ImportError:
+    pass
+
 st.set_page_config(page_title="Gait Anomaly Detection", layout="wide")
 
 # Load your trained model
