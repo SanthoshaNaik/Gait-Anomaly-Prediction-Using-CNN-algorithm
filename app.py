@@ -166,10 +166,15 @@ def grad_cam(img, layer_name='conv2d_2'):
         model.inputs, [model.get_layer(layer_name).output, model.layers[-1].output]
     )
     img_tensor = tf.convert_to_tensor(np.expand_dims(img, axis=0), dtype=tf.float32)
+    
+    # Pre-compute top class index outside the tape
+    preds = model(img_tensor)
+    top_pred_index = tf.argmax(preds[0]).numpy()
+    
     with tf.GradientTape() as tape:
         conv_outputs, predictions = grad_model(img_tensor)
         tape.watch(conv_outputs)
-        loss = predictions[:, np.argmax(predictions[0])]
+        loss = predictions[:, top_pred_index]
     grads = tape.gradient(loss, conv_outputs)[0]
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1))
     conv_outputs = conv_outputs[0]
