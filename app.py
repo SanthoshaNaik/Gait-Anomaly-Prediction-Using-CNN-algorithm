@@ -162,9 +162,14 @@ def predict_gait(input_data):
 
 # Grad-CAM
 def grad_cam(img, layer_name='conv2d_2'):
-    grad_model = tf.keras.models.Model(
-        model.inputs, [model.get_layer(layer_name).output, model.layers[-1].output]
-    )
+    # Find the index of the target layer dynamically by name
+    layer_names = [l.name for l in model.layers]
+    target_idx = layer_names.index(layer_name)
+    
+    # Split the model into two parts for clean execution inside the gradient tape
+    model_part1 = tf.keras.Sequential(model.layers[:target_idx + 1])
+    model_part2 = tf.keras.Sequential(model.layers[target_idx + 1:])
+    
     img_tensor = tf.convert_to_tensor(np.expand_dims(img, axis=0), dtype=tf.float32)
     
     # Pre-compute top class index outside the tape
@@ -172,9 +177,11 @@ def grad_cam(img, layer_name='conv2d_2'):
     top_pred_index = tf.argmax(preds[0]).numpy()
     
     with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(img_tensor)
+        conv_outputs = model_part1(img_tensor)
         tape.watch(conv_outputs)
+        predictions = model_part2(conv_outputs)
         loss = predictions[:, top_pred_index]
+        
     grads = tape.gradient(loss, conv_outputs)[0]
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1))
     conv_outputs = conv_outputs[0]
