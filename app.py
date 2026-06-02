@@ -165,8 +165,10 @@ def grad_cam(img, layer_name='conv2d_2'):
     grad_model = tf.keras.models.Model(
         model.inputs, [model.get_layer(layer_name).output, model.layers[-1].output]
     )
+    img_tensor = tf.convert_to_tensor(np.expand_dims(img, axis=0), dtype=tf.float32)
     with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(np.expand_dims(img, axis=0))
+        conv_outputs, predictions = grad_model(img_tensor)
+        tape.watch(conv_outputs)
         loss = predictions[:, np.argmax(predictions[0])]
     grads = tape.gradient(loss, conv_outputs)[0]
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1))
