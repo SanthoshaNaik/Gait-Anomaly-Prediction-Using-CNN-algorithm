@@ -18,6 +18,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Replace 'SanthoshaNaik' and 'Gait-Anomaly-Prediction-Using-CNN-algorithm' below 
+          # Replace 'SanthoshhNaik' and 'Gait-Anomaly-Prediction-Using-CNN-algorithm' below 
           # if your Hugging Face username or Space name is different.
-          git push --force https://SanthoshaNaik:$HF_TOKEN@huggingface.co/spaces/SanthoshaNaik/Gait-Anomaly-Prediction-Using-CNN-algorithm main
+          git push --force https://SanthoshhNaik:$HF_TOKEN@huggingface.co/spaces/SanthoshhNaik/Gait-Anomaly-Prediction-Using-CNN-algorithm main
+
