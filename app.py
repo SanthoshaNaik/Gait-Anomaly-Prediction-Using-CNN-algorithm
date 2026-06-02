@@ -166,10 +166,6 @@ def grad_cam(img, layer_name='conv2d_2'):
     layer_names = [l.name for l in model.layers]
     target_idx = layer_names.index(layer_name)
     
-    # Split the model into two parts for clean execution inside the gradient tape
-    model_part1 = tf.keras.Sequential(model.layers[:target_idx + 1])
-    model_part2 = tf.keras.Sequential(model.layers[target_idx + 1:])
-    
     img_tensor = tf.convert_to_tensor(np.expand_dims(img, axis=0), dtype=tf.float32)
     
     # Pre-compute top class index outside the tape
@@ -177,9 +173,20 @@ def grad_cam(img, layer_name='conv2d_2'):
     top_pred_index = tf.argmax(preds[0]).numpy()
     
     with tf.GradientTape() as tape:
-        conv_outputs = model_part1(img_tensor)
+        # Part 1: Pass through layers up to target layer manually
+        x = img_tensor
+        for layer in model.layers[:target_idx + 1]:
+            x = layer(x)
+        conv_outputs = x
+        
         tape.watch(conv_outputs)
-        predictions = model_part2(conv_outputs)
+        
+        # Part 2: Pass through the remaining layers manually
+        x = conv_outputs
+        for layer in model.layers[target_idx + 1:]:
+            x = layer(x)
+        predictions = x
+        
         loss = predictions[:, top_pred_index]
         
     grads = tape.gradient(loss, conv_outputs)[0]
